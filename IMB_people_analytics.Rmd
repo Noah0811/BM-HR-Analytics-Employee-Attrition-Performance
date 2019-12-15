@@ -24,9 +24,6 @@ citation(package = "tidyr")
 
 ```
 
-
-
-
 ```{r}
 df<-read.csv("BMHR.csv",stringsAsFactors = FALSE, header = TRUE,encoding = "utf-8")
 colname<-names(df)
@@ -93,11 +90,55 @@ ggplot(df,aes(x=Department,fill=factor(JobSatisfaction)))+
 ggplot(df,aes(x=Department,fill=OverTime))+
   geom_bar(width = 0.3) # The overtime rate has been controlled in a positive way.
 
-#Attrition
-
   
 ```
+## Q2 Which department has the highest attrition rate
+```{r}
+df$Attrition<-ifelse(df$Attrition=="Yes",1,0)
 
+df_attrition_dept<-df%>%
+  group_by(Department)%>%
+  summarise(Attritionrate=mean(Attrition))
+df_attrition_dept
+
+ggplot(df_attrition_dept,aes(x=Department,y=Attritionrate,fill=Department))+
+  geom_col(width = 0.5)
+# Sales has the highest Attrition rate
+```
+## Q3 What’s the relationship between HourlyRate and MonthlyIncome ?
+## New Q3 What's the relationship between the variables relevant to pay?;
+# They are :
+1. "DailyRate"
+2. "HourlyRate"
+3. "MonthlyIncome"
+4. "MonthlyRate"
+5. "PercentSalaryHike"
+6. "TotalWorkingYears"
+7. "YearsAtCompany"   
+```{r}
+library(corrplot)
+df_payrate<-df[,c(4,13,19,20,24,29,32)]
+COR<-cor(df_payrate)
+
+pval <- psych::corr.test(df_payrate, adjust="none")$p
+
+#corrplot for correlation coefficients
+corrplot(COR, order="AOE", method="circle", tl.pos="lt", type="lower",        
+tl.col="blue", tl.cex=0.8, tl.srt=20, 
+        addCoef.col="black", addCoefasPercent = TRUE,
+        )
+#corrplot for statistical significance
+corrplot(COR, order="AOE",method="ellipse",type="lower", p.mat=pval, insig="p-value", 
+         tl.pos="lt", sig.level=0.05,pch=20,pch.col="red",tl.cex=0.8, tl.srt=20)
+
+
+#3 of the 21 correlation coefficients are statistically significant. totalworkingyears,monthlyincome and yearsatcompany are moderately to strongly correlated. This indicates thar the more time you stayed at IBM, more working experience you have, the more monthly income you can have.
+```
+
+#
+```{r}
+
+```
 
 
 ```{r}
